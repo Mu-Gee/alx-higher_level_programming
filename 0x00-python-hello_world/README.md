@@ -1,2 +1,2 @@
 ## Python - Hello, World
-This directory deeals with the beginnign to python
+This directory deeals with the beginning to python
