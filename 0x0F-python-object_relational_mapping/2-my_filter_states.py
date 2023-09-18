@@ -16,11 +16,13 @@ def connect_and_query() -> None:
     try:
         cnx = db.connect(user=sys.argv[1], passwd=sys.argv[2], db=sys.argv[3])
         cursor = cnx.cursor(cursorclass=db.cursors.Cursor)
-        cursor.execute('SELECT * FROM states ORDER BY `id` ASC;')
+        cursor.execute("SELECT * FROM states WHERE name = '{:s}' \
+                        ORDER BY id ASC;".format(sys.argv[4]))
         states = cursor.fetchall()
 
         for state in states:
-            print(state)
+            if state[1] == sys.argv[4]:
+                print(state)
     except Exception as e:
         return (e)
 
