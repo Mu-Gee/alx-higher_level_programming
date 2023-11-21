@@ -1,48 +1,20 @@
 #!/usr/bin/python3
-"""
-Takes in the name of a state as an argument and
-lists all cities of that state, using
-the database hbtn_0e_4_usa
-"""
+"""Lists all cities by state passed by user"""
 
-if __name__ == '__main__':
-    from sys import argv
-    import MySQLdb as mysql
-    import re
+import MySQLdb
+from sys import argv
 
-    if (len(argv) != 5):
-        print('Use: username, password, database name, state name')
-        exit(1)
-
-    state_name = ' '.join(argv[4].split())
-
-    if (re.search('^[a-zA-Z ]+$', state_name) is None):
-        print('Enter a valid name state (example: California)')
-        exit(1)
-
-    try:
-        db = mysql.connect(host='localhost', port=3306, user=argv[1],
-                           passwd=argv[2], db=argv[3])
-    except Exception:
-        print('Failed to connect to the database')
-        exit(0)
-
-    cursor = db.cursor()
-
-    cuantity = cursor.execute("""SELECT c.name FROM cities as c
-                      INNER JOIN states as s
-                      ON c.state_id = s.id
-                      WHERE s.name = '{:s}'
-                      ORDER BY c.id ASC;""".format(state_name))
-
-    result_query = cursor.fetchall()
-
-    final = []
-
-    for i in range(cuantity):
-        final.append(result_query[i][0])
-
-    print(', '.join(final))
-
-    cursor.close()
-    db.close()
+if __name__ == "__main__":
+    conn = MySQLdb.connect(host="localhost", port=3306, charset="utf8",
+                           user=argv[1], passwd=argv[2], db=argv[3])
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT cities.id, cities.name, states.name FROM cities
+        LEFT JOIN states ON cities.state_id = states.id
+        WHERE states.name = %s
+        ORDER BY cities.id ASC;
+        """, (argv[4],))
+    query_rows = cur.fetchall()
+    print(", ".join([row[1] for row in query_rows]))
+    cur.close()
+    conn.close()

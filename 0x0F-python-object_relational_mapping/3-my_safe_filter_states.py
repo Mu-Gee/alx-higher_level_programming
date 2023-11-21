@@ -1,41 +1,18 @@
 #!/usr/bin/python3
-"""
-Displays all values in the states table of
-hbtn_0e_0_usa where name matches the argument.
-(Safe from SQL Injection)
-"""
+"""Lists all states starting with passed arg, prevents injection"""
 
-if __name__ == '__main__':
-    from sys import argv
-    import MySQLdb as mysql
-    import re
+import MySQLdb
+from sys import argv
 
-    if (len(argv) != 5):
-        print('Use: username, password, database name, state name')
-        exit(1)
-
-    searched = ' '.join(argv[4].split())
-
-    if (re.search('^[a-zA-Z ]+$', searched) is None):
-        print('Enter a valid name state (example: Arizona)')
-        exit(1)
-
-    try:
-        db = mysql.connect(host='localhost', port=3306, user=argv[1],
-                           passwd=argv[2], db=argv[3])
-    except Exception:
-        print('Failed to connect to the database')
-        exit(0)
-
-    cursor = db.cursor()
-
-    cursor.execute("SELECT * FROM states \
-                    WHERE name = '{:s}' ORDER BY id ASC;".format(searched))
-
-    result_query = cursor.fetchall()
-
-    for row in result_query:
+if __name__ == "__main__":
+    conn = MySQLdb.connect(host="localhost", port=3306, charset="utf8",
+                           user=argv[1], passwd=argv[2], db=argv[3])
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT * FROM states WHERE name = %s ORDER BY states.id ASC",
+        (argv[4], ))
+    query_rows = cur.fetchall()
+    for row in query_rows:
         print(row)
-
-    cursor.close()
-    db.close()
+    cur.close()
+    conn.close()
