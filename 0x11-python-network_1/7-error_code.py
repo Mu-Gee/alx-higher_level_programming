@@ -1,14 +1,23 @@
 #!/usr/bin/python3
-"""Sends a request to the URL and displays the body of the response."""
+"""Send a request to the url and print the response"""
+
+from requests import get
+from sys import argv
 
 
-if __name__ == '__main__':
-    from sys import argv
-    from requests import get
-
-    url = argv[1]
-
+def request_header_property(url: str) -> str:
+    """
+    Send a request to the URL specified and
+    get the response and handle exceptions
+    Args:
+        url (str): The URL to query
+    """
     response = get(url)
-    ERR_TXT = 'Error code: {}'
-    status = response.status_code
-    print(ERR_TXT.format(status) if (status >= 400) else response.text)
+    if int(response.status_code) >= 400:
+        return ("Error code: {}".format(response.status_code))
+
+    return response.text
+
+
+if __name__ == "__main__":
+    print(request_header_property(argv[1]))

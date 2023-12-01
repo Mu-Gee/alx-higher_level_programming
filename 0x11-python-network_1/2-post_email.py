@@ -1,19 +1,27 @@
 #!/usr/bin/python3
-"""
-Sends a POST request to the passed URL with the email as a parameter,
-and displays the body of the response (decoded in utf-8)
-"""
+"""send an email to the url and print the response"""
 
-if __name__ == '__main__':
-    import urllib.request
-    import urllib.parse
-    import sys
+from urllib import request, error, parse
+from sys import argv
 
-    argv = sys.argv
-    url = argv[1]
-    email = argv[2]
-    DATA = urllib.parse.urlencode({"email": email})
-    DATA = DATA.encode('ascii')
 
-    with urllib.request.urlopen(url, DATA) as response:
-        print(response.read().decode('utf-8'))
+def send_email_to_url(url: str, email: str) -> str:
+    """
+    Send a request to the URL specified and
+    get the response headers
+    Args:
+        url (str): The URL to query
+    """
+    data = {}
+    data['email'] = email
+    data = parse.urlencode(data).encode('utf-8')
+    req = request.Request(url, data, method="POST")
+    try:
+        with request.urlopen(req) as response:
+            return response.read().decode("utf-8")
+    except error.URLError as e:
+        return e.reason
+
+
+if __name__ == "__main__":
+    print(send_email_to_url(argv[1], argv[2]))

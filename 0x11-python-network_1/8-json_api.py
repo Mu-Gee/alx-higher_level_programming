@@ -1,24 +1,35 @@
 #!/usr/bin/python3
-"""Sends a request to the URL and displays the body of the response."""
+"""
+Send a POST request to localhost:5000/search_user
+with a query string and print the JSON result to
+standard output
+"""
+
+from requests import post
+from sys import argv
 
 
-if __name__ == '__main__':
-    from requests import post
-    from sys import argv
+def send_query(query_string: str) -> str:
+    """
+    Send the POST questy_string to server
+    Args:
+        query_string (str): the query string
+    Return:
+        string
+    """
+    server = "http://0.0.0.0:5000/search_user"
+    response = post(server, data={'q': query_string}).text
+    try:
+        resp_json = eval(response)
+        if len(resp_json) != 0:
+            return "[{}] {}".format(resp_json.get('id'), resp_json.get('name'))
+        return "No result"
+    except Exception as e:
+        return "Not a valid JSON"
 
-    URL = 'http://0.0.0.0:5000/search_user'
-    data = {'q': argv[1] if len(argv) >= 2 else ""}
-    response = post(URL, data)
 
-    type_res = response.headers['content-type']
-
-    if type_res == 'application/json':
-        result = response.json()
-        _id = result.get('id')
-        name = result.get('name')
-        if (result != {} and _id and name):
-            print("[{}] {}".format(_id, name))
-        else:
-            print('No result')
+if __name__ == "__main__":
+    if len(argv) >= 2:
+        print(send_query(argv[1]))
     else:
-        print('Not a valid JSON')
+        print(send_query(""))
